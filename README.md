@@ -1,18 +1,43 @@
-# Orbit — Discord-style webhook dashboard
+# Orbit — Discord bot + website
 
-A responsive Discord-inspired chat dashboard, including a layout intended to be comfortable in the Meta Quest Browser.
+Orbit now includes a real Discord bot backend in `bot/`. The GitHub Pages website remains a separate static site; the bot runs continuously on a hosting service such as Railway.
 
-## Publish on GitHub Pages
-The included GitHub Actions workflow deploys the static site on pushes to `main`.
+## Website
 
-In the repository, open **Settings → Pages** and set **Build and deployment → Source** to **GitHub Actions**. The workflow will then publish the site. The URL is:
+GitHub Pages URL: https://doctorgtstudios-spec.github.io/orbit-discord-ai/
 
-https://doctorgtstudios-spec.github.io/orbit-discord-ai/
+The existing browser dashboard still contains its legacy webhook sender. The Discord bot itself does not use webhooks.
 
-## Connect Discord
-Create a webhook in your Discord server under **Server Settings → Integrations → Webhooks**. In Orbit, press the plus button next to Webhook Connections and paste its URL. Choose the connection and send a message.
+## Create the Discord application
 
-## Security and limitations
-- This is a static GitHub Pages site. It sends outbound messages using Discord webhooks only.
-- Discord bot tokens, AI responses, incoming message sync, and member sync require a separate secure backend. Never put a bot token in browser code.
-- Webhook URLs are saved in this browser's local storage. Anyone with access to this browser profile may be able to use them. Do not use a shared/public headset profile. If a webhook is exposed, delete or regenerate it in Discord.
+1. Open the Discord Developer Portal: https://discord.com/developers/applications
+2. Create an application named **Orbit**.
+3. Open **Bot** and create/reset the bot token. Copy it somewhere private. Never paste it into GitHub, the website, or a public chat.
+4. On **General Information**, copy the **Application ID**. This is the `DISCORD_CLIENT_ID`.
+5. In **Installation** (or OAuth2 URL Generator), enable the `bot` and `applications.commands` scopes. Select permissions: View Channels, Send Messages, and Read Message History.
+6. Use the generated install link to add Orbit to each server. A server owner/admin must approve the installation. Do not enable privileged intents; this starter bot only uses the Guilds intent.
+
+## Deploy the bot on Railway
+
+1. Sign in at https://railway.com/ and create a new project from the GitHub repository `doctorgtstudios-spec/orbit-discord-ai`.
+2. In the Railway service settings, set **Root Directory** to `/bot`.
+3. In **Variables**, add:
+   - `DISCORD_TOKEN` = the private bot token from the Developer Portal
+   - `DISCORD_CLIENT_ID` = the Application ID
+4. Deploy. The service runs `npm start` and automatically restarts if it exits.
+
+Do not commit a real `.env` file or put the bot token in frontend code.
+
+## Commands
+
+- `/ping` — privately checks whether Orbit is online.
+- `/help` — shows available commands.
+- `/say message` — sends a message as Orbit. Discord restricts this command to members with **Manage Messages** permission.
+
+Commands are registered globally when the bot starts; Discord may take a little while to show global commands after the first deployment.
+
+## Notes
+
+- Orbit can only be installed in servers where an owner/admin authorizes it.
+- This starter version provides basic commands. AI-generated replies, custom per-server settings, and incoming message monitoring are not included yet.
+- Keep the bot token private. If it is exposed, reset it immediately in the Discord Developer Portal and update the Railway variable.
